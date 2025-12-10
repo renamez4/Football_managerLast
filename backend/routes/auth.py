@@ -3,7 +3,11 @@ from flask import Blueprint, request, jsonify
 from extensions import db, jwt
 from models import User
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from werkzeug.security import generate_password_hash, check_password_hash
 import datetime
+import os
+import uuid
+import base64
 
 # สร้าง Blueprint ชื่อ 'auth'
 auth_bp = Blueprint('auth', __name__)
@@ -29,11 +33,10 @@ def register():
         return jsonify({"message": "อีเมลนี้ถูกใช้งานแล้ว"}), 400
 
     # สร้าง User ใหม่
-    # TODO: ในการใช้งานจริง ต้องเข้ารหัส Password ด้วย (เช่น bcrypt) แต่ตอนนี้ใส่แบบ Plain text ไปก่อนเพื่อความง่ายในการทดสอบ
     new_user = User(
         username=data['username'],
         email=data['email'],
-        password_hash=data['password'], # จำไว้: ควร Hashing ก่อนเก็บ
+        password_hash=generate_password_hash(data['password']),
         phone=data.get('phone')
     )
 
@@ -56,8 +59,8 @@ def login():
     # ค้นหา User ตาม Username
     user = User.query.filter_by(username=username).first()
 
-    # ตรวจสอบว่ามี User และรหัสผ่านถูกต้อง (แบบง่าย)
-    if not user or user.password_hash != password:
+    # ตรวจสอบว่ามี User และรหัสผ่านถูกต้อง (ใช้ check_password_hash)
+    if not user or not check_password_hash(user.password_hash, password):
         return jsonify({"message": "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง"}), 401
 
     # สร้าง Access Token (อายุ 7 วัน)
@@ -114,10 +117,6 @@ def update_me():
         # Handle Base64 Upload
         if data['profileImage'].startswith('data:image'):
             try:
-                import base64
-                import os
-                import uuid
-
                 # Format: "data:image/png;base64,iVBORw0KGgoAAA..."
                 header, encoded = data['profileImage'].split(",", 1)
                 ext = header.split(';')[0].split('/')[1]
@@ -145,8 +144,8 @@ def update_me():
             user.profile_image = data['profileImage']
 
     if 'password' in data and data['password']:
-        # TODO: Encrypt password in production
-        user.password_hash = data['password']
+        # Encrypt password
+        user.password_hash = generate_password_hash(data['password'])
 
     try:
         db.session.commit()
