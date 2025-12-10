@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไขรายละเอียดทีม - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container fade-in">
+            <div class="card auth-card" style="max-width: 600px;">
+                <div class="card-header text-center">
+
+                    <h2 class="card-title text-primary" style="font-size: 2rem;">แก้ไขรายละเอียดทีม</h2>
+                    <p class="card-description">ปรับปรุงข้อมูลทีมและจัดการชื่อตำแหน่ง</p>
+                </div>
+                <div class="card-content">
+                    <form id="editTeamForm">
+                        <div class="form-group">
+                            <label class="form-label">ชื่อทีม</label>
+                            <input type="text" class="form-input" id="teamName" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">โลโก้ทีม</label>
+                            <div id="dropZone"
+                                style="border: 2px dashed var(--border); border-radius: var(--radius); height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: rgba(99, 102, 241, 0.05); position: relative; overflow: hidden; transition: all 0.3s ease;"
+                                onclick="document.getElementById('teamLogo').click()"
+                                onmouseover="this.style.borderColor='var(--primary)'; this.style.background='rgba(99, 102, 241,0.1)'"
+                                onmouseout="this.style.borderColor='var(--border)'; this.style.background='rgba(99, 102, 241,0.05)'">
+                                <input type="file" id="teamLogo" accept="image/*" style="display: none;">
+
+                                <div id="uploadPlaceholder" style="text-align: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                        stroke-linejoin="round" style="color: var(--muted); margin-bottom: 1rem;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p style="color: var(--muted); font-size: 0.9375rem;">คลิกเพื่อเปลี่ยนโลโก้ใหม่</p>
+                                </div>
+
+                                <div id="logoPreview"
+                                    style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000;">
+                                    <img id="logoPreviewImg" src=""
+                                        style="width: 100%; height: 100%; object-fit: contain; opacity: 0.8;">
+                                    <div
+                                        style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 2rem 1rem 1rem; text-align: center;">
+                                        <p style="color: white; font-size: 0.875rem; font-weight: 500;">
+                                            คลิกเพื่อเปลี่ยนรูปภาพ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">เวลาแข่งประจำ</label>
+                            <div style="position: relative;">
+                                <input type="text" class="form-input" id="teamTime" required>
+                                <span
+                                    style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem;">⏰</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                            style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: var(--radius); border: 1px dashed var(--border);">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <label class="form-label"
+                                    style="margin-bottom: 0; color: var(--primary);">แก้ไขชื่อตำแหน่งตัวจริง</label>
+                                <!-- No presets in edit mode to avoid accidental wipes -->
+                            </div>
+
+                            <div class="grid"
+                                style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem;">
+                                <input type="text" class="form-input starter-input" id="starter1Name"
+                                    placeholder="Pos 1">
+                                <input type="text" class="form-input starter-input" id="starter2Name"
+                                    placeholder="Pos 2">
+                                <input type="text" class="form-input starter-input" id="starter3Name"
+                                    placeholder="Pos 3">
+                                <input type="text" class="form-input starter-input" id="starter4Name"
+                                    placeholder="Pos 4">
+                                <input type="text" class="form-input starter-input" id="starter5Name"
+                                    placeholder="Pos 5">
+                                <input type="text" class="form-input starter-input" id="starter6Name"
+                                    placeholder="Pos 6">
+                                <input type="text" class="form-input starter-input" id="starter7Name"
+                                    placeholder="Pos 7">
+                                <input type="text" class="form-input starter-input" id="starter8Name"
+                                    placeholder="Pos 8">
+                                <input type="text" class="form-input starter-input" id="starter9Name"
+                                    placeholder="Pos 9">
+                                <input type="text" class="form-input starter-input" id="starter10Name"
+                                    placeholder="Pos 10">
+                                <input type="text" class="form-input starter-input" id="starter11Name"
+                                    placeholder="Pos 11">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                            style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: var(--radius); border: 1px dashed var(--border);">
+                            <label class="form-label"
+                                style="margin-bottom: 1rem; color: var(--primary);">แก้ไขชื่อตำแหน่งตัวสำรอง</label>
+                            <div class="grid" style="grid-template-columns: 1fr; gap: 0.75rem;">
+                                <input type="text" class="form-input" id="sub1Name" placeholder="Sub 1">
+                                <input type="text" class="form-input" id="sub2Name" placeholder="Sub 2">
+                                <input type="text" class="form-input" id="sub3Name" placeholder="Sub 3">
+                                <input type="text" class="form-input" id="sub4Name" placeholder="Sub 4">
+                                <input type="text" class="form-input" id="sub5Name" placeholder="Sub 5">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">รายละเอียดทีม</label>
+                            <textarea class="form-textarea" id="teamDetails" required></textarea>
+                        </div>
+
+                        <div class="flex gap-4" style="margin-top: 2rem;">
+                            <button type="button" class="btn btn-outline w-full"
+                                onclick="history.back()">ยกเลิก</button>
+                            <button type="submit" class="btn btn-primary w-full">บันทึกการแก้ไข</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamId = urlParams.get('id');
+        const user = getCurrentUser();
+
+        // 1. Validation & Loading
+        if (!user || !teamId) {
+            window.location.href = 'teams.html';
+        }
+
+        const team = getTeamById(teamId);
+
+        if (!team) {
+            alert('ไม่พบทีม');
+            window.location.href = 'teams.html';
+        }
+
+        if (team.owner !== user.username) {
+            alert('คุณไม่มีสิทธิ์แก้ไขทีมนี้');
+            window.location.href = 'teams.html';
+        }
+
+        // 2. Populate Form
+        document.getElementById('teamName').value = team.name;
+        document.getElementById('teamTime').value = team.time;
+        document.getElementById('teamDetails').value = team.details;
+
+        if (team.logo) {
+            document.getElementById('logoPreviewImg').src = team.logo;
+            document.getElementById('logoPreview').style.display = 'block';
+        } else {
+            document.getElementById('logoPreview').style.display = 'none';
+            document.getElementById('uploadPlaceholder').style.display = 'block';
+        }
+
+        // 2.1 Populate Starters
+        for (let i = 1; i <= 11; i++) {
+            const id = 'starter_' + i;
+            if (team.positions[id]) {
+                document.getElementById('starter' + i + 'Name').value = team.positions[id].name;
+            }
+        }
+
+        // 2.2 Populate Subs
+        for (let i = 1; i <= 5; i++) {
+            const id = 'sub_' + i;
+            if (team.positions[id]) {
+                document.getElementById('sub' + i + 'Name').value = team.positions[id].name;
+            }
+        }
+
+        // Image preview logic
+        document.getElementById('teamLogo').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('logoPreviewImg').src = event.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 3. Submission Logic
+        document.getElementById('editTeamForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            try {
+                const logoFile = document.getElementById('teamLogo').files[0];
+
+                if (logoFile) {
+                    compressImage(logoFile, 300, 0.7, function (compressedDataUrl) {
+                        saveTeamChanges(compressedDataUrl);
+                    });
+                } else {
+                    // Use existing logo if not changed
+                    saveTeamChanges(null);
+                }
+            } catch (error) {
+                console.error('Error processing form:', error);
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+
+            // Image Compression Utility
+            function compressImage(file, maxWidth, quality, callback) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        callback(dataUrl);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+            function saveTeamChanges(newLogo) {
+                try {
+                    // Collect starter names
+                    const starterNames = [];
+                    for (let i = 1; i <= 11; i++) {
+                        starterNames.push(document.getElementById(`starter${i}Name`).value);
+                    }
+
+                    // Collect sub names
+                    const substituteNames = [];
+                    for (let i = 1; i <= 5; i++) {
+                        substituteNames.push(document.getElementById(`sub${i}Name`).value);
+                    }
+
+                    const updates = {
+                        name: document.getElementById('teamName').value,
+                        time: document.getElementById('teamTime').value,
+                        details: document.getElementById('teamDetails').value,
+                        starterNames: starterNames,
+                        substituteNames: substituteNames
+                    };
+
+                    if (newLogo) {
+                        updates.logo = newLogo;
+                    }
+
+                    const result = updateTeam(teamId, updates);
+                    alert(result.message);
+
+                    if (result.success) {
+                        window.location.href = 'team-detail.html?id=' + teamId;
+                    }
+                } catch (error) {
+                    console.error('Error updating team:', error);
+                    alert('ไม่สามารถแก้ไขทีมได้: ' + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

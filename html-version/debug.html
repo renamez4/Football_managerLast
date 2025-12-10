@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar" id="navbar"></nav>
+
+    <main>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">Debug Information</h2>
+            </div>
+            <div class="card-content">
+                <h3>Current User:</h3>
+                <pre id="userData"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <h3 style="margin-top: 2rem;">All Teams:</h3>
+                <pre id="teamsData"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <h3 style="margin-top: 2rem;">User Teams:</h3>
+                <pre id="userTeamsData"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <div style="margin-top: 2rem;">
+                    <button class="btn btn-danger" onclick="clearData()">ล้างข้อมูลทั้งหมด</button>
+                    <button class="btn btn-primary" onclick="location.reload()">รีเฟรช</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script>
+        initPage();
+
+        const user = getCurrentUser();
+        document.getElementById('userData').textContent = JSON.stringify(user, null, 2);
+
+        const allTeams = getAllTeams();
+        document.getElementById('teamsData').textContent = JSON.stringify(allTeams, null, 2);
+
+        if (user) {
+            const userTeams = getUserTeams(user.username);
+            document.getElementById('userTeamsData').textContent = JSON.stringify(userTeams, null, 2);
+        } else {
+            document.getElementById('userTeamsData').textContent = 'ไม่ได้เข้าสู่ระบบ';
+        }
+
+        function clearData() {
+            if (confirm('คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?')) {
+                localStorage.clear();
+                alert('ล้างข้อมูลเรียบร้อย');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+
+</html>

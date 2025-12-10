@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดทีม - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .position-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .position-card {
+            padding: 1.25rem;
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: var(--transition);
+            background: var(--surface);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .position-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--border);
+            transition: var(--transition);
+        }
+
+        .position-card.available:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .position-card.available:hover::before {
+            background: var(--primary);
+        }
+
+        .position-card.taken {
+            background: var(--background);
+            cursor: not-allowed;
+            opacity: 0.8;
+            border-color: transparent;
+        }
+
+        .position-card.taken::before {
+            background: var(--muted);
+        }
+
+        .position-card.my-position {
+            background: rgba(99, 102, 241, 0.05);
+            border-color: var(--primary);
+        }
+
+        .position-card.my-position::before {
+            background: var(--primary);
+        }
+
+        .member-item {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            margin-bottom: 0.75rem;
+            background: var(--surface);
+            transition: var(--transition);
+        }
+
+        .member-item:hover {
+            border-color: var(--primary-light);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <nav class="navbar" id="navbar"></nav>
+
+    <main>
+        <div style="max-width: 1200px; margin: 0 auto;" class="fade-in">
+            <button class="btn btn-ghost" onclick="history.back()" style="margin-bottom: 1.5rem; padding-left: 0;">
+                ← ย้อนกลับ
+            </button>
+
+            <div class="grid grid-cols-3" style="gap: 2rem;">
+                <!-- Main Team Info -->
+                <div style="grid-column: span 2;">
+                    <div class="card" id="teamDetailCard"></div>
+
+                    <!-- Positions -->
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3 class="card-title">ตำแหน่งตัวจริง (11 คน)</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="position-grid" id="startersGrid"></div>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin-top: 2rem;">
+                        <div class="card-header">
+                            <h3 class="card-title">ตำแหน่งตัวสำรอง (5 คน)</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="position-grid" id="substitutesGrid"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div>
+                    <!-- Match Records -->
+                    <div class="card" id="matchRecordsCard"></div>
+
+                    <!-- Owner Panel -->
+                    <div class="card fade-in delay-100" id="ownerPanel" style="margin-top: 2rem; display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const teamId = urlParams.get('id');
+
+        if (!teamId) {
+            alert('ไม่พบข้อมูลทีม');
+            window.location.href = 'teams.html';
+        }
+
+        const team = getTeamById(teamId);
+        const user = getCurrentUser();
+
+        if (!team) {
+            alert('ไม่พบข้อมูลทีม');
+            window.location.href = 'teams.html';
+        }
+
+        const userPositions = user ? getUserPositionsInTeam(teamId, user.username) : [];
+        const isOwner = user ? isTeamOwner(teamId, user.username) : false;
+
+        // Render team detail
+        document.getElementById('teamDetailCard').innerHTML = `
+            ${team.logo ? `
+                <div style="position: relative; height: 320px; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; border-bottom: 1px solid var(--border); background: var(--surface);">
+                    <!-- Blurred Background for aesthetics -->
+                    <div style="position: absolute; top: -10%; left: -10%; right: -10%; bottom: -10%; background-image: url('${team.logo}'); background-size: cover; background-position: center; filter: blur(30px) opacity(0.4); transform: scale(1.1);"></div>
+                    <!-- Main Image -->
+                    <div style="position: relative; height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; padding: 2rem; backdrop-filter: grayscale(0.2);">
+                         <img src="${team.logo}" alt="${team.name}" style="max-height: 100%; max-width: 100%; object-fit: contain; border-radius: var(--radius); box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3); transition: transform 0.3s ease;" 
+                         onmouseover="this.style.transform='scale(1.02)'" 
+                         onmouseout="this.style.transform='scale(1)'">
+                    </div>
+                </div>
+            ` : ''}
+            <div class="card-header">
+                <h2 class="card-title text-primary" style="font-size: 2rem;">${team.name}</h2>
+                <p style="color: var(--muted); font-size: 0.9375rem; margin-top: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600;">OWNER</span>
+                    <strong>${team.owner || 'ไม่ระบุ'}</strong>
+                </p>
+            </div>
+            <div class="card-content">
+                <div class="grid grid-cols-2" style="margin-bottom: 2rem; gap: 1.5rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--background); border-radius: var(--radius);">
+                        <span style="font-size: 2rem;">⏰</span>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase;">Time</div>
+                            <div style="font-weight: 600;">${team.time}</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: var(--background); border-radius: var(--radius);">
+                        <span style="font-size: 2rem;">👥</span>
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--muted); font-weight: 600; text-transform: uppercase;">Members</div>
+                            <div style="font-weight: 600;">${team.filledSlots} / ${team.totalSlots}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: var(--background); padding: 1.5rem; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <h3 style="font-weight: 600; margin-bottom: 0.75rem; font-size: 1.1rem;">รายละเอียดทีม</h3>
+                    <p style="white-space: pre-wrap; color: var(--muted); line-height: 1.7;">${team.details}</p>
+                </div>
+
+                ${userPositions.length > 0 ? `
+                    <div style="background: rgba(16, 185, 129, 0.1); padding: 1.5rem; border-radius: var(--radius); margin-top: 1.5rem; border: 1px solid var(--success); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: var(--success); color: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 1.5rem;">✓</div>
+                            <div>
+                                <h3 style="font-weight: 700; color: var(--success); font-size: 1.1rem; margin-bottom: 0.25rem;">คุณอยู่ในทีมนี้แล้ว</h3>
+                                <p style="color: var(--muted); margin: 0; display: flex; align-items: center; gap: 0.5rem;">
+                                    ตำแหน่งของคุณ: 
+                                    <span style="color: var(--foreground); font-weight: 600;">
+                                        ${userPositions[0].name}
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" onclick="leaveTeamConfirm()" style="padding: 0.5rem 1.25rem;">
+                            ออกจากทีม
+                        </button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        // Render match records
+        const records = team.matchRecords || { wins: 0, losses: 0, draws: 0 };
+        document.getElementById('matchRecordsCard').innerHTML = `
+            <div class="card-header">
+                <h3 class="card-title">สถิติการแข่งขัน</h3>
+            </div>
+            <div class="card-content">
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(34, 197, 94, 0.1); border-radius: var(--radius); border-left: 4px solid var(--success);">
+                        <span style="font-weight: 600; color: var(--success);">ชนะ</span>
+                        <strong style="font-size: 1.25rem;">${records.wins}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius); border-left: 4px solid var(--danger);">
+                        <span style="font-weight: 600; color: var(--danger);">แพ้</span>
+                        <strong style="font-size: 1.25rem;">${records.losses}</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(245, 158, 11, 0.1); border-radius: var(--radius); border-left: 4px solid var(--accent);">
+                        <span style="font-weight: 600; color: var(--accent);">เสมอ</span>
+                        <strong style="font-size: 1.25rem;">${records.draws}</strong>
+                    </div>
+                </div>
+                ${isOwner ? `
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                        <p style="font-size: 0.875rem; margin-bottom: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;">บันทึกผลการแข่งขัน</p>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <button class="btn btn-sm" style="flex: 1; background: var(--success); color: white;" onclick="addMatchResult('win')">ชนะ</button>
+                            <button class="btn btn-sm" style="flex: 1; background: var(--danger); color: white;" onclick="addMatchResult('loss')">แพ้</button>
+                            <button class="btn btn-sm" style="flex: 1; background: var(--accent); color: white;" onclick="addMatchResult('draw')">เสมอ</button>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        // Render owner panel
+        if (isOwner) {
+            const members = getTeamMembers(teamId);
+            const starters = members.filter(m => !m.positionId.startsWith('sub'));
+            const substitutes = members.filter(m => m.positionId.startsWith('sub'));
+
+            document.getElementById('ownerPanel').style.display = 'block';
+            document.getElementById('ownerPanel').innerHTML = `
+                <div class="card-header">
+                    <h3 class="card-title">🔧 จัดการทีม</h3>
+                </div>
+                <div class="card-content">
+                    <div style="margin-bottom: 1.5rem;">
+                        <a href="edit-team.html?id=${teamId}" class="btn btn-outline" style="width: 100%; text-align: center;">✏️ แก้ไขข้อมูลทีม (Edit Team)</a>
+                    </div>
+                    <h4 style="font-weight: 600; margin-bottom: 1rem; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; color: var(--primary);">
+                        ตัวจริง 
+                        <span class="badge badge-success" style="background: var(--primary-light); color: var(--primary); padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.75rem;">${starters.length}</span>
+                    </h4>
+                    ${starters.length > 0 ? starters.map(member => `
+                        <div class="member-item">
+                            <div style="font-weight: 700; margin-bottom: 0.25rem; color: var(--primary);">${member.username}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.25rem;">⚽ ${member.position}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.25rem;">📧 ${member.email}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.75rem;">📱 ${member.phone}</div>
+                            <button class="btn btn-danger" style="width: 100%; padding: 0.5rem; font-weight: 600;" onclick="kickMemberConfirm('${member.username}')">เตะออกจากทีม</button>
+                        </div>
+                    `).join('') : '<p style="text-align: center; color: var(--muted); padding: 1rem; border: 2px dashed var(--border); border-radius: var(--radius); font-size: 0.875rem;">ยังไม่มีตัวจริง</p>'}
+
+                    <h4 style="font-weight: 600; margin-top: 2rem; margin-bottom: 1rem; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; color: var(--muted);">
+                        ตัวสำรอง 
+                        <span class="badge badge-success" style="background: var(--surface); color: var(--muted); border: 1px solid var(--border); padding: 0.25rem 0.5rem; border-radius: 99px; font-size: 0.75rem;">${substitutes.length}</span>
+                    </h4>
+                    ${substitutes.length > 0 ? substitutes.map(member => `
+                        <div class="member-item" style="border-style: dashed;">
+                            <div style="font-weight: 700; margin-bottom: 0.25rem; color: var(--text);">${member.username}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.25rem;">🔄 ${member.position}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.25rem;">📧 ${member.email}</div>
+                            <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.75rem;">📱 ${member.phone}</div>
+                            <button class="btn btn-danger" style="width: 100%; padding: 0.5rem; font-weight: 600;" onclick="kickMemberConfirm('${member.username}')">เตะออกจากทีม</button>
+                        </div>
+                    `).join('') : '<p style="text-align: center; color: var(--muted); padding: 1rem; border: 2px dashed var(--border); border-radius: var(--radius); font-size: 0.875rem;">ยังไม่มีตัวสำรอง</p>'}
+                    
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                         <button class="btn btn-danger" style="width: 100%;" onclick="deleteTeamConfirm()">🗑️ ลบทีมนี้ (Delete Team)</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Render positions
+        function renderPositions() {
+            const startersGrid = document.getElementById('startersGrid');
+            const substitutesGrid = document.getElementById('substitutesGrid');
+
+            const starters = Object.entries(team.positions).filter(([id, _]) =>
+                !id.startsWith('sub')
+            );
+
+            const substitutes = Object.entries(team.positions).filter(([id, _]) =>
+                id.startsWith('sub')
+            );
+
+            startersGrid.innerHTML = starters.map(([id, pos]) => {
+                const isTaken = !!pos.player;
+                const isMyPosition = user && pos.player === user.username;
+                const canSelect = user && userPositions.length < 1 && !isTaken;
+
+                return `
+                    <div class="position-card ${isTaken ? 'taken' : 'available'} ${isMyPosition ? 'my-position' : ''}"
+                         onclick="${canSelect ? `selectPosition('${id}')` : (isMyPosition ? `leavePositionConfirm('${id}')` : '')}"
+                         style="${isMyPosition ? 'cursor: pointer;' : ''}">
+                        <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--foreground);">${pos.name}</div>
+                        <div style="font-size: 0.875rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+                            ${isTaken ?
+                        `<span style="width: 8px; height: 8px; background: var(--danger); border-radius: 50%;"></span> ${pos.player}` :
+                        `<span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span> ว่าง`
+                    }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            substitutesGrid.innerHTML = substitutes.map(([id, pos]) => {
+                const isTaken = !!pos.player;
+                const isMyPosition = user && pos.player === user.username;
+                const canSelect = user && userPositions.length < 1 && !isTaken;
+
+                return `
+                    <div class="position-card ${isTaken ? 'taken' : 'available'} ${isMyPosition ? 'my-position' : ''}"
+                         onclick="${canSelect ? `selectPosition('${id}')` : (isMyPosition ? `leavePositionConfirm('${id}')` : '')}"
+                         style="${isMyPosition ? 'cursor: pointer;' : ''}">
+                        <div style="font-weight: 700; margin-bottom: 0.5rem; color: var(--foreground);">${pos.name}</div>
+                        <div style="font-size: 0.875rem; color: var(--muted); display: flex; align-items: center; gap: 0.5rem;">
+                            ${isTaken ?
+                        `<span style="width: 8px; height: 8px; background: var(--danger); border-radius: 50%;"></span> ${pos.player}` :
+                        `<span style="width: 8px; height: 8px; background: var(--success); border-radius: 50%;"></span> ว่าง`
+                    }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function selectPosition(positionId) {
+            if (!user) {
+                alert('กรุณาเข้าสู่ระบบก่อนเข้าร่วมทีม');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const position = team.positions[positionId];
+            if (confirm(`คุณต้องการเข้าร่วมทีมในตำแหน่ง "${position.name}" หรือไม่?`)) {
+                try {
+                    const result = joinTeamPosition(teamId, user.username, positionId);
+                    alert(result.message);
+
+                    if (result.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error joining team:', error);
+                    alert('เกิดข้อผิดพลาดในการเข้าร่วมทีม');
+                }
+            }
+        }
+
+        function kickMemberConfirm(memberUsername) {
+            if (confirm(`คุณต้องการเตะ "${memberUsername}" ออกจากทีมหรือไม่?`)) {
+                try {
+                    const result = kickMember(teamId, user.username, memberUsername);
+                    alert(result.message);
+
+                    if (result.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error kicking member:', error);
+                    alert('เกิดข้อผิดพลาดในการเตะสมาชิก');
+                }
+            }
+        }
+
+
+        function leavePositionConfirm(positionId) {
+            const position = team.positions[positionId];
+            if (confirm(`คุณต้องการออกจากตำแหน่ง "${position.name}" ใช่หรือไม่?`)) {
+                try {
+                    const result = leaveTeamPosition(teamId, user.username, positionId);
+                    alert(result.message);
+                    if (result.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error leaving position:', error);
+                    alert('เกิดข้อผิดพลาดในการออกจากตำแหน่ง');
+                }
+            }
+        }
+
+        function leaveTeamConfirm() {
+            if (confirm('คุณต้องการออกจากทีมนี้ใช่หรือไม่?')) {
+                try {
+                    const result = leaveTeam(teamId, user.username);
+                    alert(result.message);
+                    if (result.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error leaving team:', error);
+                    alert('เกิดข้อผิดพลาดในการออกจากทีม');
+                }
+            }
+        }
+
+        function deleteTeamConfirm() {
+            if (confirm('⚠️ คำเตือน: คุณต้องการลบทีมนี้ทิ้งถาวรใช่หรือไม่? ข้อมูลทั้งหมดจะหายไปและกู้คืนไม่ได้!')) {
+                try {
+                    const result = deleteTeam(teamId, user.username);
+                    alert(result.message);
+                    if (result.success) {
+                        window.location.href = 'teams.html';
+                    }
+                } catch (error) {
+                    console.error('Error deleting team:', error);
+                    alert('เกิดข้อผิดพลาดในการลบทีม');
+                }
+            }
+        }
+
+        function addMatchResult(result) {
+            const resultText = result === 'win' ? 'ชนะ' : result === 'loss' ? 'แพ้' : 'เสมอ';
+            if (confirm(`บันทึกผลการแข่งขัน: ${resultText}?`)) {
+                try {
+                    const response = updateMatchRecords(teamId, user.username, result);
+                    alert(response.message);
+
+                    if (response.success) {
+                        location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error updating match records:', error);
+                    alert('เกิดข้อผิดพลาดในการบันทึกผลการแข่งขัน');
+                }
+            }
+        }
+
+        renderPositions();
+
+        // Re-bind UI effects for position cards
+        refreshUI();
+    </script>
+</body>
+
+</html>

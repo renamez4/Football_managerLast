@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แก้ไขข้อมูลส่วนตัว - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">แก้ไขข้อมูลส่วนตัว</h2>
+                </div>
+                <div class="card-content">
+                    <form id="editProfileForm">
+                        <div class="form-group">
+                            <label class="form-label">อีเมล</label>
+                            <input type="email" class="form-input" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">เบอร์โทรศัพท์</label>
+                            <input type="tel" class="form-input" id="phone">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">รูปโปรไฟล์</label>
+                            <input type="file" class="form-input" id="profileImageFile" accept="image/*">
+                            <div id="imagePreview" style="margin-top: 1rem; display: none;">
+                                <img id="imagePreviewImg"
+                                    style="max-width: 200px; max-height: 200px; border-radius: 50%; border: 2px solid var(--border);">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">รหัสผ่านใหม่ </label>
+                            <input type="password" class="form-input" id="password"
+                                placeholder="กรอกเพื่อเปลี่ยนรหัสผ่าน">
+                        </div>
+                        <div class="flex gap-4" style="padding-top: 1rem;">
+                            <button type="button" class="btn btn-outline" onclick="history.back()">ยกเลิก</button>
+                            <button type="submit" class="btn btn-primary">บันทึกการเปลี่ยนแปลง</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script>
+        initPage();
+
+        const user = getCurrentUser();
+        if (!user) {
+            alert('กรุณาเข้าสู่ระบบก่อน');
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('email').value = user.email;
+        document.getElementById('phone').value = user.phone || '';
+
+        if (user.profileImage) {
+            document.getElementById('imagePreviewImg').src = user.profileImage;
+            document.getElementById('imagePreview').style.display = 'block';
+        }
+
+        // Image preview
+        document.getElementById('profileImageFile').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('imagePreviewImg').src = event.target.result;
+                    document.getElementById('imagePreview').style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('editProfileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const imageFile = document.getElementById('profileImageFile').files[0];
+
+            if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    updateProfile({
+                        email: document.getElementById('email').value,
+                        phone: document.getElementById('phone').value,
+                        profileImage: event.target.result
+                    });
+                    alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+                    window.location.href = 'profile.html';
+                };
+                reader.readAsDataURL(imageFile);
+            } else {
+                updateProfile({
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value
+                });
+                alert('บันทึกข้อมูลเรียบร้อยแล้ว');
+                window.location.href = 'profile.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

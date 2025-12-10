@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เข้าสู่ระบบ - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container fade-in">
+            <div class="card auth-card">
+                <div class="card-header text-center">
+                    <h2 class="card-title text-primary">เข้าสู่ระบบ</h2>
+                    <p class="card-description">ยินดีต้อนรับกลับสู่ FootballManager</p>
+                </div>
+                <div class="card-content">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label class="form-label">ชื่อผู้ใช้งาน หรือ อีเมล</label>
+                            <input type="text" class="form-input" id="identifier" required
+                                placeholder="กรอกชื่อผู้ใช้งานหรืออีเมลของคุณ">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <input type="password" class="form-input" id="password" required placeholder="กรอกรหัสผ่าน">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">เข้าสู่ระบบ</button>
+                    </form>
+                    <div class="text-center mt-4" style="font-size: 0.9375rem;">
+                        ยังไม่มีบัญชี?
+                        <a href="register.html" class="text-primary"
+                            style="font-weight: 600; text-decoration: none;">สมัครสมาชิก</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const identifier = document.getElementById('identifier').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                if (identifier && password) {
+                    login(identifier, password);
+                    // Use a custom toast or modal instead of alert for better UI in future
+                    // For now, standard alert is fine but let's make it minimal
+                    window.location.href = 'index.html';
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container fade-in">
+            <div class="card auth-card">
+                <div class="card-header text-center">
+                    <h2 class="card-title text-primary">สมัครสมาชิก</h2>
+                    <p class="card-description">สร้างบัญชีใหม่เพื่อเข้าร่วมทีม</p>
+                </div>
+                <div class="card-content">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label class="form-label">ชื่อผู้ใช้งาน</label>
+                            <input type="text" class="form-input" id="username" required
+                                placeholder="ตั้งชื่อผู้ใช้งาน">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">อีเมล</label>
+                            <input type="email" class="form-input" id="email" required placeholder="example@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <input type="password" class="form-input" id="password" required minlength="6"
+                                placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร">
+                            <p style="font-size: 0.75rem; color: var(--muted); margin-top: 0.25rem;">ความยาวอย่างน้อย 6
+                                ตัวอักษร</p>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">เบอร์โทรศัพท์</label>
+                            <input type="tel" class="form-input" id="phone" placeholder="08x-xxx-xxxx">
+                        </div>
+                        <button type="submit" class="btn btn-primary w-full">สมัครสมาชิก</button>
+                    </form>
+                    <div class="text-center mt-4" style="font-size: 0.9375rem;">
+                        มีบัญชีอยู่แล้ว?
+                        <a href="login.html" class="text-primary"
+                            style="font-weight: 600; text-decoration: none;">เข้าสู่ระบบ</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        document.getElementById('registerForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const userData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                register(userData);
+                window.location.href = 'profile.html';
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+    </script>
+</body>
+
+</html>

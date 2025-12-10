@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>โปรไฟล์ของฉัน - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <nav class="navbar" id="navbar"></nav>
+
+    <main>
+        <div style="max-width: 800px; margin: 0 auto;" class="fade-in">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title text-primary">โปรไฟล์ของฉัน</h2>
+                </div>
+                <div class="card-content">
+                    <div style="display: flex; gap: 2rem; align-items: flex-start;">
+                        <div style="flex-shrink: 0;">
+                            <div class="profile-avatar">
+                                <span id="profileAvatar">👤</span>
+                                <img id="profileImage" src="" alt="Profile" style="display: none;">
+                            </div>
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <h3 id="profileName"
+                                style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--foreground);">
+                            </h3>
+                            <div style="color: var(--muted); margin-bottom: 1.5rem;">
+                                <p id="profileEmail"
+                                    style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                    </svg>
+                                    -
+                                </p>
+                                <p id="profilePhone" style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                        stroke-linejoin="round">
+                                        <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+                                        <path d="M12 18h.01" />
+                                    </svg>
+                                    -
+                                </p>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <a href="edit-profile.html" class="btn btn-outline btn-sm">แก้ไขโปรไฟล์</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 2.5rem; padding-top: 2.5rem; border-top: 1px solid var(--border);">
+                        <h3 style="font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem;">ทีมที่เข้าร่วม</h3>
+                        <div id="joinedTeams" class="grid grid-cols-2" style="gap: 1.5rem;">
+                            <!-- Teams will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        if (!isLoggedIn()) {
+            window.location.href = 'login.html';
+        }
+
+        const user = getCurrentUser();
+        if (user) {
+            document.getElementById('profileName').textContent = user.username;
+            document.getElementById('profileEmail').innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                ${user.email || 'ไม่ระบุ'}
+            `;
+            document.getElementById('profilePhone').innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg>
+                ${user.phone || 'ไม่ระบุ'}
+            `;
+
+            if (user.profileImage) {
+                document.getElementById('profileImage').src = user.profileImage;
+                document.getElementById('profileImage').style.display = 'block';
+                document.getElementById('profileAvatar').style.display = 'none';
+            }
+
+            // Load joined teams
+            try {
+                const teams = getUserTeams(user.username);
+                const teamsContainer = document.getElementById('joinedTeams');
+
+                if (teams && teams.length > 0) {
+                    let html = '';
+                    for (const team of teams) {
+                        const positions = getUserPositionsInTeam(team.id, user.username);
+                        const positionName = positions.length > 0 ? positions.map(p => p.name).join(', ') : 'สมาชิก';
+
+                        html += `
+                            <div style="padding: 1.25rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--background); transition: var(--transition);" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border)'">
+                                <div style="font-weight: 700; margin-bottom: 0.25rem; font-size: 1.1rem;">${team.name}</div>
+                                <div style="font-size: 0.875rem; color: var(--muted); margin-bottom: 0.5rem;">${positionName}</div>
+                                
+                                <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem; padding: 0.5rem; background: rgba(0,0,0,0.03); border-radius: var(--radius);">
+                                    <div style="flex: 1; text-align: center;">
+                                        <div style="font-size: 0.75rem; color: var(--muted);">ชนะ</div>
+                                        <div style="font-weight: 600; color: var(--success);">${team.matchRecords?.wins || 0}</div>
+                                    </div>
+                                    <div style="flex: 1; text-align: center; border-left: 1px solid var(--border); border-right: 1px solid var(--border);">
+                                        <div style="font-size: 0.75rem; color: var(--muted);">เสมอ</div>
+                                        <div style="font-weight: 600; color: var(--accent);">${team.matchRecords?.draws || 0}</div>
+                                    </div>
+                                    <div style="flex: 1; text-align: center;">
+                                        <div style="font-size: 0.75rem; color: var(--muted);">แพ้</div>
+                                        <div style="font-weight: 600; color: var(--danger);">${team.matchRecords?.losses || 0}</div>
+                                    </div>
+                                </div>
+
+                                <a href="team-detail.html?id=${team.id}" class="btn btn-outline btn-sm w-full">ดูรายละเอียด</a>
+                            </div>
+                        `;
+                    }
+                    teamsContainer.innerHTML = html;
+                } else {
+                    teamsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 3rem; color: var(--muted); grid-column: span 2; background: var(--background); border-radius: var(--radius); border: 2px dashed var(--border);">
+                            <p style="margin-bottom: 1rem;">ยังไม่ได้เข้าร่วมทีม</p>
+                            <a href="teams.html" class="btn btn-primary">ค้นหาทีม</a>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading teams:', error);
+                document.getElementById('joinedTeams').innerHTML = '<p class="text-danger">เกิดข้อผิดพลาดในการโหลดข้อมูลทีม</p>';
+            }
+
+            // Load Past Teams History
+            // Refresh user from DB to get latest history
+            try {
+                const usersDB = JSON.parse(localStorage.getItem('sport_manager_users_db') || '{}');
+                const dbUser = usersDB[user.username];
+
+                if (dbUser && dbUser.teamHistory && dbUser.teamHistory.length > 0) {
+                    const historyContainer = document.createElement('div');
+                    historyContainer.style.marginTop = '2.5rem';
+                    historyContainer.style.paddingTop = '2.5rem';
+                    historyContainer.style.borderTop = '1px solid var(--border)';
+
+                    historyContainer.innerHTML = `
+                        <h3 style="font-weight: 600; margin-bottom: 1.5rem; font-size: 1.25rem; color: var(--muted);">ประวัติการย้ายทีม (History)</h3>
+                        <div class="grid grid-cols-1" style="gap: 1rem;">
+                            ${dbUser.teamHistory.map(history => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius);">
+                                    <div>
+                                        <div style="font-weight: 600; font-size: 1rem; color: var(--muted);">${history.teamName}</div>
+                                        <div style="font-size: 0.875rem; color: var(--muted);">
+                                            เคยเล่นตำแหน่ง: <span style="color: var(--foreground); font-weight: 600;">${history.position}</span>
+                                        </div>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <div style="font-size: 0.75rem; color: var(--muted);">
+                                            ${new Date(history.leftDate).toLocaleDateString('th-TH')}
+                                        </div>
+                                        <div style="font-size: 0.75rem; display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 0.25rem;">
+                                            <span style="color: var(--success);">ชนะ ${history.matchStats.wins}</span>
+                                            <span style="color: var(--accent);">เสมอ ${history.matchStats.draws}</span>
+                                            <span style="color: var(--danger);">แพ้ ${history.matchStats.losses}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+
+                    // Append after joined teams section
+                    document.getElementById('joinedTeams').parentElement.appendChild(historyContainer);
+                }
+            } catch (e) {
+                console.error('Error loading history:', e);
+            }
+        }
+    </script>
+</body>
+
+</html>

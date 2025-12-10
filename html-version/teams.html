@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทีมทั้งหมด - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <section class="hero fade-in"
+            style="padding: 4rem 1.5rem; text-align: left; display: flex; justify-content: space-between; align-items: flex-end;">
+            <div>
+                <h1 style="font-size: 3rem; margin-bottom: 1rem;">ค้นหาทีมของคุณ</h1>
+                <p class="text-muted" style="font-size: 1.25rem; max-width: 500px;">เข้าร่วมทีมที่ใช่
+                    แข่งขันในแมตช์ที่ชอบ และพัฒนาฝีเท้าไปด้วยกัน</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <div style="position: relative;">
+                    <input type="text" id="searchTeamInput" placeholder="ค้นหาชื่อทีม..." class="form-input"
+                        style="padding-left: 2.5rem; width: 300px;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--muted);">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </div>
+                <a href="create-team.html" class="btn btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    สร้างทีมใหม่
+                </a>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-3 fade-in delay-200" id="teamsContainer" style="margin-top: 2rem;">
+            <!-- Teams will be loaded here -->
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        // Load and display teams
+        function loadTeams(searchQuery = '') {
+            const allTeams = getAllTeams();
+            const container = document.getElementById('teamsContainer');
+
+            let teams = allTeams;
+            if (searchQuery) {
+                const lowerQuery = searchQuery.toLowerCase();
+                teams = allTeams.filter(team =>
+                    team.name.toLowerCase().includes(lowerQuery)
+                );
+            }
+
+            if (teams.length === 0) {
+                container.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 4rem; color: var(--muted); background: var(--surface-glass); border-radius: var(--radius); border: 2px dashed var(--border);">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">🏟️</div>
+                        <h3 style="font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--foreground);">ไม่พบทีมที่ค้นหา</h3>
+                        <p style="margin-bottom: 1.5rem;">ลองค้นหาด้วยคำค้นอื่น หรือสร้างทีมใหม่</p>
+                        <a href="create-team.html" class="btn btn-primary">สร้างทีมแรก</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = teams.map(team => {
+                const filledStarters = Object.entries(team.positions).filter(([id, pos]) => !id.startsWith('sub') && pos.player).length;
+                const filledSubs = Object.entries(team.positions).filter(([id, pos]) => id.startsWith('sub') && pos.player).length;
+
+                return `
+                <div class="card">
+                    ${team.logo ? `
+                        <div style="height: 180px; overflow: hidden; border-bottom: 1px solid var(--border); position: relative;">
+                            <img src="${team.logo}" alt="${team.name}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease;">
+                            <div style="position: absolute; top: 1rem; right: 1rem;">
+                                <span class="badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}" style="background: ${team.status === 'Open' ? 'var(--success)' : 'var(--danger)'}; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; box-shadow: var(--shadow);">
+                                    ${team.status === 'Open' ? 'เปิดรับสมัคร' : 'ทีมเต็ม'}
+                                </span>
+                            </div>
+                        </div>
+                    ` : `
+                        <div style="height: 180px; background: linear-gradient(135deg, var(--primary-light), var(--background)); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: center; position: relative;">
+                             <div style="font-size: 3rem; opacity: 0.5;">⚽</div>
+                             <div style="position: absolute; top: 1rem; right: 1rem;">
+                                <span class="badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}" style="background: ${team.status === 'Open' ? 'var(--success)' : 'var(--danger)'}; color: white; padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.75rem; font-weight: 600; box-shadow: var(--shadow);">
+                                    ${team.status === 'Open' ? 'เปิดรับสมัคร' : 'ทีมเต็ม'}
+                                </span>
+                            </div>
+                        </div>
+                    `}
+                    <div class="card-header" style="padding-bottom: 0.5rem;">
+                        <h3 style="font-size: 1.5rem; font-weight: 700; margin: 0; color: var(--foreground);">${team.name}</h3>
+                        <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.25rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${team.details}</p>
+                    </div>
+                    <div class="card-content" style="padding-top: 0.5rem;">
+                        <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.9375rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--foreground);">
+                                <div style="width: 32px; height: 32px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                                </div>
+                                <span>${team.time}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.75rem; color: var(--foreground);">
+                                <div style="width: 32px; height: 32px; background: var(--primary-light); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                                </div>
+                                <div style="display: flex; gap: 1rem; align-items: center;">
+                                    <span style="font-weight: 500;">ตัวจริง: <strong style="color: var(--primary);">${filledStarters}/11</strong></span>
+                                    <span style="font-weight: 500;">ตัวสำรอง: <strong style="color: var(--muted);">${filledSubs}/5</strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer" style="background: transparent; border-top: none; padding-top: 0;">
+                        <a href="team-detail.html?id=${team.id}" class="btn btn-outline w-full" style="justify-content: center;">
+                            ดูรายละเอียด
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 0.25rem;"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                        </a>
+                    </div>
+                </div>
+            `;
+            }).join('');
+
+            // Re-bind UI effects for new elements
+            refreshUI(container);
+        }
+
+        // Search listener
+        const searchInput = document.getElementById('searchTeamInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                loadTeams(e.target.value);
+            });
+        }
+
+        loadTeams();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SportManager - จัดการทีมฟุตบอล</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <section class="hero fade-in">
+            <h1>จัดการทีมฟุตบอลของคุณ<br>ได้ง่ายๆ ที่นี่</h1>
+            <p>SportManager ช่วยให้คุณสร้างทีม ค้นหาผู้เล่น และจัดการตารางการแข่งขันได้อย่างมืออาชีพ
+                พร้อมข้อมูลกีฬาฟุตบอลครบวงจร</p>
+            <div class="flex gap-4" style="justify-content: center;">
+                <a href="teams.html" class="btn btn-primary btn-lg">ค้นหาทีม</a>
+                <a href="register.html" class="btn btn-outline btn-lg">สมัครสมาชิก</a>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-3 fade-in delay-200" style="margin-top: 3rem;">
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">สร้างและเข้าร่วมทีม</h3>
+                <p class="text-muted">สร้างทีมของคุณเองหรือค้นหาทีมที่เปิดรับสมัครเพื่อเข้าร่วมแข่งขัน</p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                        <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                        <path d="M4 22h16"></path>
+                        <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                        <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">ข้อมูลกีฬาฟุตบอล</h3>
+                <p class="text-muted">เรียนรู้กติกา วิธีการเล่น และเกร็ดความรู้ต่างๆ เกี่ยวกับฟุตบอล</p>
+            </div>
+
+            <div class="card feature-card">
+                <div class="feature-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">จัดการโปรไฟล์</h3>
+                <p class="text-muted">บันทึกประวัติการเล่น แก้ไขข้อมูลส่วนตัว และดูสถานะทีมของคุณ</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        // Dynamic hero buttons based on auth state
+        const user = getCurrentUser();
+        if (user) {
+            const heroButtons = document.querySelector('.hero .flex.gap-4');
+            if (heroButtons) {
+                heroButtons.innerHTML = `
+                    <a href="teams.html" class="btn btn-primary btn-lg">ค้นหาทีม</a>
+                    <a href="create-team.html" class="btn btn-outline btn-lg">สร้างทีม</a>
+                `;
+            }
+        }
+    </script>
+</body>
+
+</html>

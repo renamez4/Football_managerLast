@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ทดสอบระบบ - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <nav class="navbar" id="navbar"></nav>
+
+    <main>
+        <div class="card">
+            <div class="card-header">
+                <h2 class="card-title">ทดสอบระบบ</h2>
+            </div>
+            <div class="card-content">
+                <h3>1. ข้อมูลผู้ใช้ปัจจุบัน:</h3>
+                <pre id="currentUser"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <h3 style="margin-top: 2rem;">2. ฐานข้อมูลผู้ใช้ทั้งหมด:</h3>
+                <pre id="usersDB" style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <h3 style="margin-top: 2rem;">3. ทีมทั้งหมด:</h3>
+                <pre id="allTeams"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <h3 style="margin-top: 2rem;">4. ทีมที่ผู้ใช้เข้าร่วม:</h3>
+                <pre id="userTeams"
+                    style="background: #f8fafc; padding: 1rem; border-radius: 4px; overflow: auto;"></pre>
+
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn btn-primary" onclick="testLogout()">ทดสอบ Logout</button>
+                    <button class="btn btn-secondary" onclick="location.reload()">รีเฟรช</button>
+                    <button class="btn btn-danger" onclick="clearAll()">ล้างข้อมูลทั้งหมด</button>
+                </div>
+
+                <div id="testResult" style="margin-top: 2rem; padding: 1rem; border-radius: 4px; display: none;"></div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer"></footer>
+
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script>
+        initPage();
+
+        function displayData() {
+            // Current user
+            const user = getCurrentUser();
+            document.getElementById('currentUser').textContent = JSON.stringify(user, null, 2);
+
+            // Users database
+            const usersDB = JSON.parse(localStorage.getItem('sport_manager_users_db') || '{}');
+            document.getElementById('usersDB').textContent = JSON.stringify(usersDB, null, 2);
+
+            // All teams
+            const teams = getAllTeams();
+            document.getElementById('allTeams').textContent = JSON.stringify(teams, null, 2);
+
+            // User teams
+            if (user) {
+                const userTeams = getUserTeams(user.username);
+                document.getElementById('userTeams').textContent = JSON.stringify(userTeams, null, 2);
+            } else {
+                document.getElementById('userTeams').textContent = 'ไม่ได้เข้าสู่ระบบ';
+            }
+        }
+
+        function testLogout() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.style.background = '#e0f2fe';
+            resultDiv.innerHTML = '<strong>กำลังทดสอบ Logout...</strong>';
+
+            try {
+                logout();
+                resultDiv.style.background = '#dcfce7';
+                resultDiv.innerHTML = '<strong>✅ Logout สำเร็จ!</strong><br>กำลัง redirect...';
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+            } catch (error) {
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.innerHTML = '<strong>❌ Logout ล้มเหลว!</strong><br>Error: ' + error.message;
+            }
+        }
+
+        function clearAll() {
+            if (confirm('คุณต้องการล้างข้อมูลทั้งหมดหรือไม่?')) {
+                localStorage.clear();
+                alert('ล้างข้อมูลเรียบร้อย');
+                location.reload();
+            }
+        }
+
+        displayData();
+    </script>
+</body>
+
+</html>

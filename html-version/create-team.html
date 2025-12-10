@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สร้างทีมใหม่ - SportManager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <!-- Background Canvas -->
+    <canvas id="bg-canvas"></canvas>
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar"></nav>
+
+    <!-- Main Content -->
+    <main>
+        <div class="auth-container fade-in">
+            <div class="card auth-card" style="max-width: 600px;">
+                <div class="card-header text-center">
+
+                    <h2 class="card-title text-primary" style="font-size: 2rem;">สร้างทีมใหม่</h2>
+                    <p class="card-description">สร้างทีมของคุณ เพื่อจัดการสมาชิกและการแข่งขัน</p>
+                </div>
+                <div class="card-content">
+                    <form id="createTeamForm">
+                        <div class="form-group">
+                            <label class="form-label">ชื่อทีม</label>
+                            <input type="text" class="form-input" id="teamName" required
+                                placeholder="เช่น liverpools, mancitys">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">โลโก้ทีม</label>
+                            <div id="dropZone"
+                                style="border: 2px dashed var(--border); border-radius: var(--radius); height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; background: rgba(99, 102, 241, 0.05); position: relative; overflow: hidden; transition: all 0.3s ease;"
+                                onclick="document.getElementById('teamLogo').click()"
+                                onmouseover="this.style.borderColor='var(--primary)'; this.style.background='rgba(99, 102, 241,0.1)'"
+                                onmouseout="this.style.borderColor='var(--border)'; this.style.background='rgba(99, 102, 241,0.05)'">
+                                <input type="file" id="teamLogo" accept="image/*" style="display: none;">
+
+                                <div id="uploadPlaceholder" style="text-align: center;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+                                        fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                                        stroke-linejoin="round" style="color: var(--muted); margin-bottom: 1rem;">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                        <polyline points="17 8 12 3 7 8"></polyline>
+                                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                                    </svg>
+                                    <p style="color: var(--muted); font-size: 0.9375rem;">คลิกเพื่ออัปโหลดโลโก้ทีม</p>
+                                    <p style="color: var(--muted); font-size: 0.75rem; margin-top: 0.5rem;">รองรับไฟล์
+                                        JPG, PNG</p>
+                                </div>
+
+                                <div id="logoPreview"
+                                    style="display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; background: #000;">
+                                    <img id="logoPreviewImg"
+                                        style="width: 100%; height: 100%; object-fit: contain; opacity: 0.8;">
+                                    <div
+                                        style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); padding: 2rem 1rem 1rem; text-align: center;">
+                                        <p style="color: white; font-size: 0.875rem; font-weight: 500;">
+                                            คลิกเพื่อเปลี่ยนรูปภาพ</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">เวลาแข่งประจำ</label>
+                            <div style="position: relative;">
+                                <input type="text" class="form-input" id="teamTime" required
+                                    placeholder="เช่น ทุกวันเสาร์ 18:00 - 20:00">
+                                <span
+                                    style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.25rem;">⏰</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                            style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: var(--radius); border: 1px dashed var(--border);">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <label class="form-label"
+                                    style="margin-bottom: 0; color: var(--primary);">กำหนดชื่อตำแหน่งตัวจริง (11
+                                    ตำแหน่ง)</label>
+                                <select id="formationPreset" class="form-input"
+                                    style="width: auto; padding: 0.25rem 0.5rem; font-size: 0.875rem;"
+                                    onchange="applyFormationPreset()">
+                                    <option value="">เลือกแผนการเล่น (Auto-fill)</option>
+                                    <option value="4-3-3">4-3-3</option>
+                                    <option value="4-4-2">4-4-2</option>
+                                    <option value="4-2-3-1">4-2-3-1</option>
+                                    <option value="3-5-2">3-5-2</option>
+                                    <option value="custom">กำหนดเอง</option>
+                                </select>
+                            </div>
+
+                            <div class="grid"
+                                style="grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.75rem;">
+                                <input type="text" class="form-input starter-input" id="starter1Name"
+                                    placeholder="ตำแหน่ง 1 (GK)" value="GK">
+                                <input type="text" class="form-input starter-input" id="starter2Name"
+                                    placeholder="ตำแหน่ง 2" value="LB">
+                                <input type="text" class="form-input starter-input" id="starter3Name"
+                                    placeholder="ตำแหน่ง 3" value="CB">
+                                <input type="text" class="form-input starter-input" id="starter4Name"
+                                    placeholder="ตำแหน่ง 4" value="CB">
+                                <input type="text" class="form-input starter-input" id="starter5Name"
+                                    placeholder="ตำแหน่ง 5" value="RB">
+                                <input type="text" class="form-input starter-input" id="starter6Name"
+                                    placeholder="ตำแหน่ง 6" value="CDM">
+                                <input type="text" class="form-input starter-input" id="starter7Name"
+                                    placeholder="ตำแหน่ง 7" value="CM">
+                                <input type="text" class="form-input starter-input" id="starter8Name"
+                                    placeholder="ตำแหน่ง 8" value="CM">
+                                <input type="text" class="form-input starter-input" id="starter9Name"
+                                    placeholder="ตำแหน่ง 9" value="LW">
+                                <input type="text" class="form-input starter-input" id="starter10Name"
+                                    placeholder="ตำแหน่ง 10" value="ST">
+                                <input type="text" class="form-input starter-input" id="starter11Name"
+                                    placeholder="ตำแหน่ง 11" value="RW">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                            style="background: rgba(var(--primary-rgb), 0.05); padding: 1.5rem; border-radius: var(--radius); border: 1px dashed var(--border);">
+                            <label class="form-label"
+                                style="margin-bottom: 1rem; color: var(--primary);">กำหนดชื่อตำแหน่งตัวสำรอง (5
+                                ตำแหน่ง)</label>
+                            <div class="grid" style="grid-template-columns: 1fr; gap: 0.75rem;">
+                                <input type="text" class="form-input" id="sub1Name" placeholder="ชื่อตัวสำรองคนที่ 1"
+                                    value="ตัวสำรอง 1">
+                                <input type="text" class="form-input" id="sub2Name" placeholder="ชื่อตัวสำรองคนที่ 2"
+                                    value="ตัวสำรอง 2">
+                                <input type="text" class="form-input" id="sub3Name" placeholder="ชื่อตัวสำรองคนที่ 3"
+                                    value="ตัวสำรอง 3">
+                                <input type="text" class="form-input" id="sub4Name" placeholder="ชื่อตัวสำรองคนที่ 4"
+                                    value="ตัวสำรอง 4">
+                                <input type="text" class="form-input" id="sub5Name" placeholder="ชื่อตัวสำรองคนที่ 5"
+                                    value="ตัวสำรอง 5">
+                            </div>
+                            <p style="font-size: 0.8rem; color: var(--muted); margin-top: 0.5rem;">*
+                                สามารถกำหนดชื่อตำแหน่งได้เอง เช่น "กองหน้าสำรอง", "ผู้รักษาประตูสำรอง"</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">รายละเอียดทีม</label>
+                            <textarea class="form-textarea" id="teamDetails" required
+                                placeholder="อธิบายเกี่ยวกับทีมของคุณ เป้าหมาย หรือคุณสมบัติสมาชิกที่ต้องการ..."></textarea>
+                        </div>
+
+                        <div class="flex gap-4" style="margin-top: 2rem;">
+                            <button type="button" class="btn btn-outline w-full"
+                                onclick="history.back()">ยกเลิก</button>
+                            <button type="submit" class="btn btn-primary w-full">สร้างทีมเลย</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer id="footer"></footer>
+
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/teams.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/ui.js"></script>
+    <script>
+        initPage();
+
+        if (!isLoggedIn()) {
+            // Use a nicer alert or redirect immediately
+            window.location.href = 'login.html';
+        }
+
+        // Image preview
+        document.getElementById('teamLogo').addEventListener('change', function (e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    document.getElementById('logoPreviewImg').src = event.target.result;
+                    document.getElementById('logoPreview').style.display = 'block';
+                    document.getElementById('uploadPlaceholder').style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Formation presets
+        const FORMATIONS = {
+            '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CM', 'CM', 'LW', 'ST', 'RW'],
+            '4-4-2': ['GK', 'LB', 'CB', 'CB', 'RB', 'LM', 'CM', 'CM', 'RM', 'ST', 'ST'],
+            '4-2-3-1': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CDM', 'RAM', 'CAM', 'LAM', 'ST'],
+            '3-5-2': ['GK', 'CB', 'CB', 'CB', 'LWB', 'CDM', 'CM', 'CM', 'RWB', 'ST', 'ST']
+        };
+
+        function applyFormationPreset() {
+            const preset = document.getElementById('formationPreset').value;
+            if (preset === 'custom' || !preset) return;
+
+            const positions = FORMATIONS[preset];
+            if (positions) {
+                positions.forEach((pos, index) => {
+                    const input = document.getElementById(`starter${index + 1}Name`);
+                    if (input) input.value = pos;
+                });
+            }
+        }
+
+        document.getElementById('createTeamForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            try {
+                const logoFile = document.getElementById('teamLogo').files[0];
+
+                if (logoFile) {
+                    compressImage(logoFile, 300, 0.7, function (compressedDataUrl) {
+                        saveTeam(compressedDataUrl);
+                    });
+                } else {
+                    saveTeam('');
+                }
+            } catch (error) {
+                console.error('Error processing form:', error);
+                alert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+
+            // Image Compression Utility
+            function compressImage(file, maxWidth, quality, callback) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const img = new Image();
+                    img.onload = function () {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > maxWidth) {
+                            height = (height * maxWidth) / width;
+                            width = maxWidth;
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        // Compress to JPEG with reduced quality
+                        const dataUrl = canvas.toDataURL('image/jpeg', quality);
+                        callback(dataUrl);
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+
+
+            function saveTeam(logo) {
+                try {
+                    // Collect starter names
+                    const starterNames = [];
+                    for (let i = 1; i <= 11; i++) {
+                        starterNames.push(document.getElementById(`starter${i}Name`).value || `ตัวจริง ${i}`);
+                    }
+
+                    const teamData = {
+                        name: document.getElementById('teamName').value,
+                        time: document.getElementById('teamTime').value,
+                        details: document.getElementById('teamDetails').value,
+                        logo: logo,
+                        starterNames: starterNames,
+                        substituteNames: [
+                            document.getElementById('sub1Name').value || 'ตัวสำรอง 1',
+                            document.getElementById('sub2Name').value || 'ตัวสำรอง 2',
+                            document.getElementById('sub3Name').value || 'ตัวสำรอง 3',
+                            document.getElementById('sub4Name').value || 'ตัวสำรอง 4',
+                            document.getElementById('sub5Name').value || 'ตัวสำรอง 5'
+                        ]
+                    };
+
+                    createTeam(teamData);
+                    // Could add a nice success animation here before redirecting
+                    alert('สร้างทีมสำเร็จ!');
+                    window.location.href = 'teams.html';
+                } catch (error) {
+                    console.error('Error creating team:', error);
+                    alert('ไม่สามารถสร้างทีมได้: ' + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
