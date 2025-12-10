@@ -102,6 +102,11 @@ def update_team(team_id):
     API สำหรับแก้ไขข้อมูลทีม
     """
     current_user_id = get_jwt_identity()
+    try:
+        current_user_id = int(current_user_id)
+    except:
+        pass # Handle cases where it might not be convertible, though unlikely if auth.py sets it
+
     data = request.get_json()
     
     team = Team.query.get(team_id)
@@ -319,10 +324,15 @@ def extract_position_key(name):
 def try_auto_promote(team, empty_starter_id, positions):
     """
     Attempts to find a substitute to fill an empty starter slot.
+    Logic: Highly flexible matching.
+    1. Direct Key Match: 'st' == 'st'
+    2. Substring Match: 'st' in 'sub st 1'
+    3. Partial Token Match
     """
     starter_pos = positions.get(empty_starter_id)
     if not starter_pos: return None
 
+    starter_name = starter_pos.get('name', '').lower().strip()
     starter_key = extract_position_key(starter_pos.get('name'))
     
     # Find candidates
@@ -330,9 +340,27 @@ def try_auto_promote(team, empty_starter_id, positions):
     for pid, pos in positions.items():
         # Check if it's a sub (starts with 'sub') and has a player
         if pid.startswith('sub') and pos.get('player'):
+            sub_name = pos.get('name', '').lower()
             sub_key = extract_position_key(pos.get('name'))
-            if sub_key == starter_key:
+            
+            # 1. Exact Key Match
+            if sub_key and starter_key and sub_key == starter_key:
                 candidates.append((pid, pos))
+                continue
+
+            # 2. Substring/Token Match (Flexible)
+            # Check if starter key (e.g., "st") is in sub name (e.g., "ตัวสำรอง 1 st")
+            if starter_key and starter_key in sub_name:
+                 candidates.append((pid, pos))
+                 continue
+                 
+            # 3. Check if starter name words appear in sub name
+            # e.g Starter: "Attacking Midfielder", Sub: "Sub Attacking"
+            if starter_name:
+                 tokens = starter_name.split()
+                 if any(token in sub_name for token in tokens if len(token) > 1):
+                      candidates.append((pid, pos))
+                      continue
     
     if candidates:
         # Pick first one

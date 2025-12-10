@@ -1,0 +1,18 @@
+Team: Final
+Positions:
+  starter0: 'GK' (Key: 'gk') - Player: None
+  starter1: 'CB' (Key: 'cb') - Player: None
+  starter2: 'CB' (Key: 'cb') - Player: None
+  starter3: 'CB' (Key: 'cb') - Player: None
+  starter4: 'LWB' (Key: 'lwb') - Player: None
+  starter5: 'CDM' (Key: 'cdm') - Player: None
+  starter6: 'CM' (Key: 'cm') - Player: None
+  starter7: 'CM' (Key: 'cm') - Player: None
+  starter8: 'RWB' (Key: 'rwb') - Player: None
+  starter9: 'ST' (Key: 'st') - Player: None
+  starter10: 'ST' (Key: 'st') - Player: nametest
+  sub0: 'ตัวสำรอง 1 ST' (Key: 'ตัวสำรอง 1 st') - Player: myname
+  sub1: 'ST' (Key: 'st') - Player: None
+  sub2: 'ตัวสำรอง 3' (Key: 'ตัวสำรอง 3') - Player: None
+  sub3: 'ตัวสำรอง 4' (Key: 'ตัวสำรอง 4') - Player: None
+  sub4: 'ตัวสำรอง 5' (Key: 'ตัวสำรอง 5') - Player: None

@@ -51,7 +51,6 @@ class Team(db.Model):
     details = db.Column(db.Text) # รายละเอียด
     max_players = db.Column(db.Integer, default=0) # รับสมัครกี่คน
     status = db.Column(db.String(20), default='Open') # สถานะ (Open/Full)
-    status = db.Column(db.String(20), default='Open') # สถานะ (Open/Full)
     positions = db.Column(db.Text) # เก็บข้อมูลตำแหน่ง (JSON String)
     match_records = db.Column(db.Text, default='{}') # เก็บสถิติผลการแข่ง {'wins':0, 'losses':0, 'draws':0}
     
