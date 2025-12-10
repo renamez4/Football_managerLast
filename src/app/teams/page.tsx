@@ -78,7 +78,11 @@ export default function TeamsPage() {
                                     <div style={{ height: "180px", overflow: "hidden", borderBottom: "1px solid var(--border)", position: "relative" }}>
                                         <img src={team.logo} alt={team.name} style={{ width: "100%", height: "100%", objectFit: "cover", transition: "transform 0.5s ease" }} />
                                         <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
-                                            <span className={`badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}`}>
+                                            <span className={`badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}`}
+                                                style={team.status !== 'Open' ? {
+                                                    background: "rgba(220, 38, 38, 0.15)",
+                                                    borderColor: "var(--danger)"
+                                                } : undefined}>
                                                 {team.status === 'Open' ? 'เปิดรับสมัคร' : 'ทีมเต็ม'}
                                             </span>
                                         </div>
@@ -87,7 +91,11 @@ export default function TeamsPage() {
                                     <div style={{ height: "180px", background: "linear-gradient(135deg, var(--primary-light), var(--background))", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                                         <div style={{ fontSize: "3rem", opacity: 0.5 }}>⚽</div>
                                         <div style={{ position: "absolute", top: "1rem", right: "1rem" }}>
-                                            <span className={`badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}`}>
+                                            <span className={`badge ${team.status === 'Open' ? 'badge-success' : 'badge-danger'}`}
+                                                style={team.status !== 'Open' ? {
+                                                    background: "rgba(220, 38, 38, 0.15)",
+                                                    borderColor: "var(--danger)"
+                                                } : undefined}>
                                                 {team.status === 'Open' ? 'เปิดรับสมัคร' : 'ทีมเต็ม'}
                                             </span>
                                         </div>

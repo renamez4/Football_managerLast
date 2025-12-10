@@ -17,7 +17,10 @@ def get_teams():
     teams = Team.query.all()
     # Handle DB entries that might not have positions (legacy)
     result = []
+    result = []
     for team in teams:
+
+
         t_dict = team.to_dict()
         if not t_dict.get('positions'): 
             t_dict['positions'] = {}
@@ -143,6 +146,8 @@ def update_team(team_id):
     except:
         positions = {}
         
+
+
     starter_names = data.get('starterNames', [])
     sub_names = data.get('substituteNames', [])
     
@@ -256,14 +261,18 @@ def leave_team_position(team_id):
 
     # Record History
     try:
-        current_stats = team.match_records if team.match_records else '{"wins": 0, "draws": 0, "losses": 0}'
-        history = TeamHistory(
-            user_id=user.id,
-            team_name=team.name,
-            position=positions[position_id].get('name', 'Unknown'),
-            match_stats=current_stats
-        )
-        db.session.add(history)
+        current_stats_str = team.match_records if team.match_records else '{"wins": 0, "draws": 0, "losses": 0}'
+        stats_dict = eval(current_stats_str)
+        total_matches = stats_dict.get('wins', 0) + stats_dict.get('losses', 0) + stats_dict.get('draws', 0)
+        
+        if total_matches > 0:
+            history = TeamHistory(
+                user_id=user.id,
+                team_name=team.name,
+                position=positions[position_id].get('name', 'Unknown'),
+                match_stats=current_stats_str
+            )
+            db.session.add(history)
     except Exception as e:
         print(f"Error recording history: {e}")
 
@@ -365,14 +374,18 @@ def kick_member(team_id):
             member = User.query.filter_by(username=member_username).first()
             if member:
                 try:
-                    current_stats = team.match_records if team.match_records else '{"wins": 0, "draws": 0, "losses": 0}'
-                    history = TeamHistory(
-                        user_id=member.id,
-                        team_name=team.name,
-                        position=pos.get('name', 'Unknown'),
-                        match_stats=current_stats
-                    )
-                    db.session.add(history)
+                    current_stats_str = team.match_records if team.match_records else '{"wins": 0, "draws": 0, "losses": 0}'
+                    stats_dict = eval(current_stats_str)
+                    total_matches = stats_dict.get('wins', 0) + stats_dict.get('losses', 0) + stats_dict.get('draws', 0)
+
+                    if total_matches > 0:
+                        history = TeamHistory(
+                            user_id=member.id,
+                            team_name=team.name,
+                            position=pos.get('name', 'Unknown'),
+                            match_stats=current_stats_str
+                        )
+                        db.session.add(history)
                 except Exception as e:
                     print(f"Error recording history: {e}")
 

@@ -773,6 +773,11 @@ footer {
   background: var(--success);
 }
 
+.badge-danger {
+  background: var(--danger);
+  color: white;
+}
+
 
 /* ===== Position Cards ===== */
 .position-grid {
