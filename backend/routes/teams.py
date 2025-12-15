@@ -1,7 +1,7 @@
 
 from flask import Blueprint, request, jsonify
 from extensions import db
-from models import Team, User, team_members, TeamHistory
+from models import Team, User, team_members, TeamHistory, MatchHistory
 
 from flask_jwt_extended import jwt_required, get_jwt_identity
 import json
@@ -468,9 +468,33 @@ def update_match_records(team_id):
     elif result == 'draw': stats['draws'] += 1
     
     team.match_records = str(stats)
+
+    # --- AUTO-RECORD HISTORY FOR ALL MEMBERS ---
+    # Defines the "snapshot" of stats at this moment
+    current_stats_snapshot = str(stats)
+    
+    # Add history for the owner as well if they are a player (optional, but good for completeness)
+    # usually owners are members too, so iterating members is enough if owner is in members.
+    # If owner is NOT in members automatically, we might miss them.
+    # Safe bet: iterate team.members
+    
+    count = 0
+    for member in team.members:
+        try:
+            match_hist = MatchHistory(
+                user_id=member.id,
+                team_name=team.name,
+                result=result,
+                match_stats=current_stats_snapshot
+            )
+            db.session.add(match_hist)
+            count += 1
+        except Exception as e:
+            print(f"Failed to add history for {member.username}: {e}")
+
     db.session.commit()
     
-    return jsonify({"message": "Records updated", "team": team.to_dict()}), 200
+    return jsonify({"message": f"Records updated and saved for {count} members", "team": team.to_dict()}), 200
 
 @teams_bp.route('/<int:team_id>', methods=['DELETE'])
 @jwt_required()

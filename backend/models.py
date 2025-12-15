@@ -35,7 +35,32 @@ class User(db.Model):
             'email': self.email,
             'phone': self.phone,
             'profileImage': self.profile_image,
-            'history': [h.to_dict() for h in self.history]
+            'history': [h.to_dict() for h in self.history],
+            'matchHistory': [m.to_dict() for m in self.match_history]
+        }
+
+class MatchHistory(db.Model):
+    """
+    ตารางเก็บประวัติการแข่งขันรายแมตช์ (Match History)
+    """
+    __tablename__ = 'match_history'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    team_name = db.Column(db.String(100), nullable=False)
+    result = db.Column(db.String(10), nullable=False) # 'win', 'loss', 'draw'
+    match_date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    match_stats = db.Column(db.Text, default='{"wins": 0, "draws": 0, "losses": 0}') # Snapshot of stats
+
+    user = db.relationship('User', backref=db.backref('match_history', lazy=True))
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'teamName': self.team_name,
+            'result': self.result,
+            'matchDate': self.match_date.isoformat(),
+            'matchStats': eval(self.match_stats) if self.match_stats else {'wins': 0, 'draws': 0, 'losses': 0}
         }
 
 class Team(db.Model):
