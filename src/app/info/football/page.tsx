@@ -2,13 +2,13 @@
 "use client";
 
 import Link from "next/link";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 import { TiltCard } from "@/components/ui/TiltCard";
 
 export default function FootballInfoPage() {
     return (
         <>
-            <BackgroundCanvas />
+
 
 
             <section className="hero fade-in" style={{ padding: "4rem 1.5rem", textAlign: "center" }}>

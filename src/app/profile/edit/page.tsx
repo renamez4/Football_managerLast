@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 
 export default function EditProfilePage() {
     const { user, updateProfile, loading } = useAuth();
@@ -56,7 +56,7 @@ export default function EditProfilePage() {
 
     return (
         <>
-            <BackgroundCanvas />
+
             <main>
                 <div style={{ maxWidth: "600px", margin: "0 auto" }} className="fade-in">
                     <div className="card">

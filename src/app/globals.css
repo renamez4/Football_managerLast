@@ -1,5 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 
+/* Navbar Animations */
+.navbar {
+  transition: all 0.3s ease-in-out;
+}
+
+.navbar-scrolled {
+  background: rgba(15, 23, 42, 0.8) !important;
+  /* Slate-900/80 */
+  backdrop-filter: blur(12px) !important;
+  padding-top: 0.75rem !important;
+  padding-bottom: 0.75rem !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.nav-icon {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn:hover .nav-icon,
+.navbar-links a:hover .nav-icon {
+  transform: scale(1.2) rotate(-5deg);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

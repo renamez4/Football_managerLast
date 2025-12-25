@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef } from "react";
@@ -9,21 +8,20 @@ export function BackgroundCanvas() {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        let width = 0;
-        let height = 0;
-        let particles: Particle[] = [];
-        let animationFrameId: number;
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+        canvas.width = width;
+        canvas.height = height;
 
         // Configuration
-        const particleCount = window.innerWidth < 768 ? 30 : 60;
-        const connectionDistance = 150;
-        const mouseDistance = 200;
+        const particleCount = 60;
+        const connectionDistance = 140;
+        const moveSpeed = 0.6;
 
-        let mouse = { x: null as number | null, y: null as number | null };
+        const themeColor = "99, 102, 241"; // Indigo-500
 
         class Particle {
             x: number;
@@ -31,103 +29,71 @@ export function BackgroundCanvas() {
             vx: number;
             vy: number;
             size: number;
-            color: string;
 
             constructor() {
                 this.x = Math.random() * width;
                 this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
+                this.vx = (Math.random() - 0.5) * moveSpeed;
+                this.vy = (Math.random() - 0.5) * moveSpeed;
                 this.size = Math.random() * 2 + 1;
-                this.color = `rgba(148, 163, 184, ${Math.random() * 0.5 + 0.1})`;
             }
 
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
-                if (this.x < 0) this.x = width;
-                if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height;
-                if (this.y > height) this.y = 0;
+
+                // Bounce off edges
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
             }
 
             draw() {
                 if (!ctx) return;
-                ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(${themeColor}, 0.8)`;
                 ctx.fill();
             }
         }
 
-        const resize = () => {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
+        let particles: Particle[] = [];
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        let animationFrameId: number;
+
+        const handleResize = () => {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
         };
 
-        const handleMouseMove = (e: MouseEvent) => {
-            mouse.x = e.clientX;
-            mouse.y = e.clientY;
-        };
-
-        const handleMouseLeave = () => {
-            mouse.x = null;
-            mouse.y = null;
-        };
-
-        const init = () => {
-            resize();
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        };
+        window.addEventListener("resize", handleResize);
 
         const animate = () => {
-            if (!ctx) return;
             ctx.clearRect(0, 0, width, height);
 
             particles.forEach((p, index) => {
                 p.update();
                 p.draw();
 
-                // Connect particles
-                for (let j = index; j < particles.length; j++) {
+                // Connect only to other particles
+                for (let j = index + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dx = p.x - p2.x;
                     const dy = p.y - p2.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance < connectionDistance) {
+                    if (dist < connectionDistance) {
                         ctx.beginPath();
-                        const opacity = 1 - distance / connectionDistance;
-                        ctx.strokeStyle = `rgba(99, 102, 241, ${opacity * 0.15})`;
-                        ctx.lineWidth = 1;
+                        const alpha = 0.5 * (1 - dist / connectionDistance);
+                        ctx.strokeStyle = `rgba(${themeColor}, ${alpha})`;
+                        ctx.lineWidth = 0.8;
                         ctx.moveTo(p.x, p.y);
                         ctx.lineTo(p2.x, p2.y);
                         ctx.stroke();
-                    }
-                }
-
-                // Connect to mouse
-                if (mouse.x != null && mouse.y != null) {
-                    const dx = p.x - mouse.x;
-                    const dy = p.y - mouse.y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < mouseDistance) {
-                        ctx.beginPath();
-                        const opacity = 1 - distance / mouseDistance;
-                        ctx.strokeStyle = `rgba(139, 92, 246, ${opacity * 0.3})`;
-                        ctx.lineWidth = 1;
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(mouse.x, mouse.y);
-                        ctx.stroke();
-
-                        if (distance > 10) {
-                            p.x -= dx * 0.01;
-                            p.y -= dy * 0.01;
-                        }
                     }
                 }
             });
@@ -135,17 +101,10 @@ export function BackgroundCanvas() {
             animationFrameId = requestAnimationFrame(animate);
         };
 
-        window.addEventListener("resize", resize);
-        window.addEventListener("mousemove", handleMouseMove);
-        window.addEventListener("mouseleave", handleMouseLeave);
-
-        init();
         animate();
 
         return () => {
-            window.removeEventListener("resize", resize);
-            window.removeEventListener("mousemove", handleMouseMove);
-            window.removeEventListener("mouseleave", handleMouseLeave);
+            window.removeEventListener("resize", handleResize);
             cancelAnimationFrame(animationFrameId);
         };
     }, []);
@@ -153,7 +112,6 @@ export function BackgroundCanvas() {
     return (
         <canvas
             ref={canvasRef}
-            id="bg-canvas"
             style={{
                 position: "fixed",
                 top: 0,

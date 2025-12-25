@@ -5,6 +5,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { AuthProvider } from "@/lib/auth";
 import { Footer } from "@/components/layout/Footer";
 import { ScrollObserver } from "@/components/util/ScrollObserver";
+import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -28,6 +29,8 @@ export default function RootLayout({
         className={`${outfit.variable} font-sans antialiased flex flex-col min-h-screen`}
       >
         <AuthProvider>
+          {/* Version key updated to force hard-refresh of canvas logic */}
+          <BackgroundCanvas key="v11-clean" />
           <ScrollObserver />
           <Navbar />
           <main>

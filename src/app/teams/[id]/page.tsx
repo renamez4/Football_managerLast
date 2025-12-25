@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useTeams, Team } from "@/lib/teams";
 import { useAuth } from "@/lib/auth";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 import Link from "next/link";
 import { TiltCard } from "@/components/ui/TiltCard";
 import {
@@ -132,7 +132,7 @@ export default function TeamDetailPage() {
 
     return (
         <>
-            <BackgroundCanvas />
+
             <div style={{ maxWidth: "1200px", margin: "0 auto" }} className="fade-in">
                 <button className="btn btn-ghost" onClick={() => router.back()} style={{ marginBottom: "1.5rem", paddingLeft: 0 }}>
                     ← ย้อนกลับ

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 import { TiltCard } from "@/components/ui/TiltCard";
 import Link from "next/link";
 import { useTeams } from "@/lib/teams";
@@ -74,7 +74,7 @@ export default function ProfilePage() {
     if (loading) {
         return (
             <>
-                <BackgroundCanvas />
+
                 <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'var(--foreground)' }}>
                     Loading...
                 </div>
@@ -92,8 +92,8 @@ export default function ProfilePage() {
 
     return (
         <>
-            <BackgroundCanvas />
-            <BackgroundCanvas />
+
+
             <main style={{ minHeight: "100vh", padding: "2rem 1rem" }}>
                 <div style={{ maxWidth: "900px", margin: "0 auto" }} className="fade-in">
 

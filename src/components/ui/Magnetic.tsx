@@ -1,3 +1,5 @@
+"use client";
+
 import { useRef, useState, useEffect } from "react";
 
 interface MagneticProps {
@@ -9,28 +11,6 @@ interface MagneticProps {
 export function Magnetic({ children, strength = 0.2, active = true }: MagneticProps) {
     const ref = useRef<HTMLElement>(null);
     const [position, setPosition] = useState({ x: 0, y: 0 });
-
-    useEffect(() => {
-        if (!active) {
-            setPosition({ x: 0, y: 0 });
-            return;
-        }
-
-        const handleMouseMove = (e: MouseEvent) => {
-            const { clientX, clientY } = e;
-            const element = ref.current;
-            if (!element) return;
-
-            const { left, top, width, height } = element.getBoundingClientRect();
-
-            // Check if mouse is near or over the button (simplified: triggered by hover on the button itself)
-            // But usually Magnetic is applied as a wrapper that listens to its own events.
-            // Let's attach events to the clone directly.
-        };
-
-        // We can't attach global mousemove easily for specific element proximity without overhead.
-        // Better approach: functionality is applied to the child via cloneElement or checking ref.
-    }, [active]);
 
     const handleMouseMove = (e: React.MouseEvent) => {
         if (!active) return;

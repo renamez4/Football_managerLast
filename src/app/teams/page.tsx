@@ -4,7 +4,7 @@
 import { useState } from "react";
 import { useTeams } from "@/lib/teams";
 import Link from "next/link";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 import { TiltCard } from "@/components/ui/TiltCard";
 import { useAuth } from "@/lib/auth";
 
@@ -19,7 +19,7 @@ export default function TeamsPage() {
 
     return (
         <>
-            <BackgroundCanvas />
+
 
             <section className="hero fade-in" style={{ padding: "4rem 1.5rem", textAlign: "left", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "2rem" }}>
                 <div>
@@ -62,11 +62,21 @@ export default function TeamsPage() {
                 {loading ? (
                     <div className="col-span-full text-center py-20 text-muted">กำลังโหลดข้อมูล...</div>
                 ) : filteredTeams.length === 0 ? (
-                    <div className="col-span-full text-center py-16" style={{ background: "var(--surface-glass)", borderRadius: "var(--radius)", border: "2px dashed var(--border)" }}>
-                        <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>🏟️</div>
-                        <h3 style={{ fontSize: "1.5rem", fontWeight: 600, marginBottom: "0.5rem" }}>ไม่พบทีมที่ค้นหา</h3>
-                        <p style={{ marginBottom: "1.5rem", color: "var(--muted)" }}>ลองค้นหาด้วยคำค้นอื่น หรือสร้างทีมใหม่</p>
-                        {user && <Link href="/teams/create" className="btn btn-primary">สร้างทีมแรก</Link>}
+                    <div className="col-span-full flex flex-col items-center justify-center text-center py-20" style={{ minHeight: "400px", background: "var(--surface-glass)", borderRadius: "var(--radius)", border: "2px dashed var(--border)" }}>
+
+                        {user && (
+                            <Link href="/teams/create" className="btn btn-primary btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                สร้างทีมแรก
+                            </Link>
+                        )}
+                        <h3 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "0.5rem", color: "var(--foreground)" }}>ไม่พบทีมที่ค้นหา</h3>
+                        <p style={{ color: "var(--muted)", fontSize: "1.125rem", maxWidth: "400px" }}>
+                            ยังไม่มีทีมที่ตรงกับคำค้นหาของคุณ ลองเปลี่ยนคำค้นหรือสร้างทีมของคุณเอง
+                        </p>
                     </div>
                 ) : (
                     filteredTeams.map((team) => {

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTeams } from "@/lib/teams";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 
 const FORMATIONS: { [key: string]: string[] } = {
     '4-3-3': ['GK', 'LB', 'CB', 'CB', 'RB', 'CDM', 'CM', 'CM', 'LW', 'ST', 'RW'],
@@ -42,7 +42,17 @@ export default function CreateTeamPage() {
     const handleFormationChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const preset = e.target.value;
         if (FORMATIONS[preset]) {
-            setStarters([...FORMATIONS[preset]]);
+            const formationPositions = FORMATIONS[preset];
+            setStarters([...formationPositions]);
+
+            // Auto-Generate Subs based on Formation Positions
+            // 1. Always include a sub goalkeeper
+            // 2. Randomly pick 4 field positions from the starter list to have backups for
+            const fieldPlayers = formationPositions.filter(p => p !== 'GK');
+            const shuffledField = [...fieldPlayers].sort(() => 0.5 - Math.random());
+
+            // Sub list: 1 GK + 4 Random Field Players from the plan
+            setSubs(['GK', ...shuffledField.slice(0, 4)]);
         }
     };
 
@@ -73,7 +83,7 @@ export default function CreateTeamPage() {
 
     return (
         <>
-            <BackgroundCanvas />
+
             <main>
                 <div className="auth-container fade-in">
                     <div className="card auth-card" style={{ maxWidth: "600px" }}>

@@ -4,7 +4,7 @@ import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
 import { useTeams, Team } from "@/lib/teams";
 import { useAuth } from "@/lib/auth";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 
 // Helper to extract position names from the backend object
 const getPositionName = (positions: any, key: string, defaultName: string) => {
@@ -153,7 +153,7 @@ export default function EditTeamPage({ params }: { params: Promise<{ id: string 
 
     return (
         <>
-            <BackgroundCanvas />
+
             <main>
                 <div className="auth-container fade-in">
                     <div className="card auth-card" style={{ maxWidth: "600px" }}>

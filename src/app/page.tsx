@@ -1,10 +1,9 @@
-
 "use client";
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+
 import { TiltCard } from "@/components/ui/TiltCard";
 import { Magnetic } from "@/components/ui/Magnetic";
 
@@ -20,7 +19,7 @@ export default function Home() {
 
   return (
     <>
-      <BackgroundCanvas />
+
 
       <section className="hero fade-in">
         <h1>
@@ -29,7 +28,7 @@ export default function Home() {
           ได้ง่ายๆ ที่นี่
         </h1>
         <p>
-          SportManager ช่วยให้คุณสร้างทีม ค้นหาผู้เล่น และจัดการตารางการแข่งขันได้อย่างมืออาชีพ
+          FootballManager ช่วยให้คุณสร้างทีม ค้นหาผู้เล่น และจัดการตารางการแข่งขันได้อย่างมืออาชีพ
           พร้อมข้อมูลกีฬาฟุตบอลครบวงจร
         </p>
         <div className="flex gap-4 justify-center">

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/auth";
 import Link from "next/link";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 
 export default function RegisterPage() {
     const [formData, setFormData] = useState({
@@ -31,7 +31,7 @@ export default function RegisterPage() {
 
     return (
         <>
-            <BackgroundCanvas />
+
             <div className="auth-container fade-in">
                 <div className="card auth-card">
                     <div className="card-header text-center">

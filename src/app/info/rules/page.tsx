@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { BackgroundCanvas } from "@/components/ui/BackgroundCanvas";
+// Removed BackgroundCanvas import
 import { TiltCard } from "@/components/ui/TiltCard";
 
 export default function RulesPage() {
     return (
         <>
-            <BackgroundCanvas />
+
 
             <section className="hero fade-in" style={{ padding: "4rem 1.5rem", textAlign: "center" }}>
                 <h1 className="text-gradient-anim" style={{ fontSize: "3.5rem", fontWeight: 800, marginBottom: "1rem", lineHeight: 1.1 }}>

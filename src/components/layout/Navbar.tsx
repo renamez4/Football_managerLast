@@ -5,20 +5,27 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth";
 import { useEffect, useState } from "react";
 import { Magnetic } from "@/components/ui/Magnetic";
+import { DoorOpen, Trophy, Users, User } from "lucide-react";
 
 export function Navbar() {
     const { user, loading } = useAuth();
     const [mounted, setMounted] = useState(false);
+    const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
         setMounted(true);
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
     // Prevent hydration mismatch
     if (!mounted) return <nav className="navbar"></nav>;
 
     return (
-        <nav className="navbar">
+        <nav className={`navbar ${scrolled ? "navbar-scrolled" : ""}`}>
             <div className="container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <Link href="/" className="navbar-brand">
                     <svg
@@ -41,8 +48,14 @@ export function Navbar() {
                 </Link>
 
                 <nav className="navbar-links">
-                    <Link href="/teams">ทีมทั้งหมด</Link>
-                    <Link href="/info/football">ข้อมูลกีฬา</Link>
+                    <Link href="/teams" className="flex items-center gap-2 group">
+                        <Users size={18} className="nav-icon" />
+                        <span>ทีมทั้งหมด</span>
+                    </Link>
+                    <Link href="/info/football" className="flex items-center gap-2 group">
+                        <Trophy size={18} className="nav-icon" />
+                        <span>ข้อมูลกีฬา</span>
+                    </Link>
                 </nav>
 
                 <div className="navbar-actions">
@@ -50,10 +63,7 @@ export function Navbar() {
                         <div style={{ display: "flex", alignItems: "center", gap: '1rem' }}>
                             <Magnetic>
                                 <Link href="/profile" className="btn btn-ghost" style={{ gap: '0.5rem', display: 'flex', alignItems: 'center' }}>
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                        <path d="M19 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
+                                    <User size={18} className="nav-icon" />
                                     {user.username}
                                 </Link>
                             </Magnetic>
@@ -65,9 +75,10 @@ export function Navbar() {
                                             window.location.href = "/";
                                         }
                                     }}
-                                    className="btn btn-outline btn-sm"
+                                    className="btn btn-outline btn-sm flex items-center gap-2"
                                     style={{ color: '#ef4444', borderColor: '#ef4444' }}
                                 >
+                                    <DoorOpen size={18} className="nav-icon" />
                                     ออกจากระบบ
                                 </button>
                             </Magnetic>
